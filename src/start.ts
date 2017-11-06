@@ -5,7 +5,7 @@ const app = Express();
 
 
 app.post('/api/register', function(req, res) {
-    res.redirect('/success.html');
+    res.redirect('/success.html?='+req.body.email);
 });
 
 app.listen(3002);
