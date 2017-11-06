@@ -22,7 +22,7 @@ function send(to: string, subject: string, body: string) {
         text: body
     };
     mailgun.messages().send(data, function (error: any, body: any) {
-        console.log(body);
+        console.log(body, error, secret);
     });
 }
 
