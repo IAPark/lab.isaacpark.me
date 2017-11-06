@@ -4,7 +4,7 @@ import * as Express from "express";
 const app = Express();
 
 
-app.post('/register', function(req, res) {
+app.post('/api/register', function(req, res) {
     res.redirect('/success.html');
 });
 
