@@ -1,4 +1,6 @@
-import secret from "../../secret.json"
+import * as fs from "fs";
+
+var secret = JSON.parse(<any>fs.readFileSync("/var/www/secret.json"));
 
 var mailgun = require('mailgun-js')({apiKey: secret.mailgun.apiKey, domain: 'lab.isaacpark.me'});
 import * as Express from "express";
