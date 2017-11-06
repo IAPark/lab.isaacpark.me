@@ -1,4 +1,6 @@
-const sendmail = require('sendmail')();
+import secret from "../../secret.json"
+
+var mailgun = require('mailgun-js')({apiKey: secret.mailgun.apiKey, domain: 'lab.isaacpark.me'});
 import * as Express from "express";
 import * as bodyParser from "body-parser";
 import * as request from "request";
@@ -7,7 +9,22 @@ import fetch from "node-fetch";
 const app = Express();
 
 app.use(bodyParser.urlencoded());
-app.use(Express.static('.'))
+app.use(Express.static('.'));
+
+
+function send(to: string, subject: string, body: string) {
+    var data = {
+        from: 'Robot Watcher <watcher@lab.isaacpark.me>',
+        to: to,
+        subject: subject,
+        text: body
+    };
+    mailgun.messages().send(data, function (error: any, body: any) {
+        console.log(body);
+    });
+}
+
+
 
 setInterval(() => {
     listeners.forEach(l => setTimeout(() => l.tick(), Math.random()*1000*60*5));
@@ -31,12 +48,7 @@ class ApiListener {
     }
 
     sendUpdate() {
-        sendmail({
-            from: 'sender@lab.isaacpark.me',
-            to: this.email,
-            subject: 'Important, the API has changed.',
-            html: `${this.url} has changed to ${this.lastValue}`,
-        }, function(err: any, reply: any) {});
+        send(this.email, 'Important, the API has changed', `${this.url} has changed to ${this.lastValue}`)
     }
 
     tick() {
@@ -48,15 +60,10 @@ class ApiListener {
 let listeners: ApiListener[] = [];
 
 app.post('/api/register', function(req, res) {
-    sendmail({
-        from: 'sender@lab.isaacpark.me',
-        to: req.body.email,
-        subject: 'Registered for notifications',
-        html: 'You appear to have registered to be notified to any changes to the output of '+req.body.url,
-    }, function(err: any, reply: any) {
-        console.log(err && err.stack);
-        console.dir(reply);
-    });
+    send(req.body.email, 
+        'Registered for notifications', 
+        'You appear to have registered to be notified to any changes to the output of '+req.body.url)
+
     listeners.push(new ApiListener(req.body.url, req.body.email));
 
     res.redirect('/success.html?='+req.body.email);
